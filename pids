@@ -1,0 +1,50 @@
+steering      | 2B0  first two bytes steering angle| 590 | 5AD
+hand brake    | 490
+fourth        | 541  | 590 | 5AD
+masahat       | 541
+doors status  | 541 front | 553 rear
+brake 220 | 2A2  |331   	         | 51C | 560 | 590 | 5ad
+gas   230 | 329 
+light front  | 541
+rpm  557 |
+speed 450 | 386 | 291 | 380 
+07050 | 541 | 03 40 40 80 02 00 00 00
+fuel level possible
+!540 | !561[0][1] | 52d[0] | 540[2] | 044[4] 
+
+odo possiple
+!56b[1] | !5d0[0] | 541[1] 5ad[5] | 585[2] | $561[5]
+
+
+# pretty
+
+steering angle      | 2B0
+_________________________
+steering torque     | 2B0
+_________________________
+front doors status  | 541
+_________________________
+rear doors status   | 553
+_________________________
+brake power         | 331
+                    | 220
+                    | 2A2
+_________________________
+gas pedal power     | 230
+                    | 329
+_________________________
+vehicle speed       | 450
+_________________________
+front light         | 541
+=============================
+additionals:
+
+wheel speed         | 386
+_________________________
+rpm                 |557
+_________________________
+hand brake status   | 490
+_________________________
+flasher             | 541
+_________________________
+wipers              | 541

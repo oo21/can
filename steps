@@ -1,0 +1,6 @@
+door 2 times * 4
+st ang
+st trq
+frt light 5 times
+brake 5 times
+gas 5 times
