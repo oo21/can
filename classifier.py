@@ -18,10 +18,12 @@ class Classifier():
         speed = (data[3]/2)*0.1
         return speed
 
-    def calculate_trip_distance(self,d0,speed,td): # calibrate speed in order for this function to be accurate
+    def calculate_trip_distance_from_speed(self,d0,speed,td): # calibrate speed in order for this function to be accurate
         distance = d0+((speed*1000)/3600)*td
         print(d0,speed,distance,td)
         return distance
+    
+
     def decode_front_doors_status(self, data): 
         if data[1] == 0x40 or data[1] == 0x50: # need edit
             fl = "closed"
@@ -75,7 +77,10 @@ class Classifier():
             ang3 = (ang+ang1*255)/10
         return ang3,torque
 
-
+    def decode_trip_distance(self,data,odo0,td0):
+        if data[0] != odo0:
+            distance = td0 + 100
+        return distance
 
 class RET(): # reverse engineering tool
 
@@ -83,42 +88,49 @@ class RET(): # reverse engineering tool
         pass                
 
 
-
-
-
 a_classifier = Classifier()
-counter = 0
-while 1:
-    #time.sleep(0.000001)
-    dta = a_classifier.bus.recv()
-    if counter == 0:
-        print("innnnnnnnnnnnnnn")
-        t0 = time.time()
-        d0 = 0
-        counter+=1
-        continue
 
-    #print(dta.data)
-    if dta.arbitration_id == 0x56B:
-        speed = a_classifier.decode_speed(dta.data)
-        tn = time.time()
-        td = tn - t0
-        distance = a_classifier.calculate_trip_distance(d0,speed,td)
-        d0 = distance
-        t0 = tn
-    if dta.arbitration_id == 0x541:
-        fl,fr = a_classifier.decode_front_doors_status(dta.data)
-    if dta.arbitration_id == 0x553:
-        rl,rr = a_classifier.decode_rear_doors_status(dta.data)
-    if dta.arbitration_id == 0x541:
-        ls = a_classifier.decode_light_status(dta.data)
-    if dta.arbitration_id == 0x331:
-        prake_power = a_classifier.decode_brake_power(dta.data)
-    if dta.arbitration_id == 0x230:
-        gas_power = a_classifier.decode_gas_power(dta.data)
-    if dta.arbitration_id == 0x2B0:    
-        sa,st= a_classifier.decode_ssteering_angle_torque(dta.data)
+def main(a_classifier):
+    counter = 0
+    while 1:
+        #time.sleep(0.000001)
+        dta = a_classifier.bus.recv()
+        if counter == 0:
+            print("innnnnnnnnnnnnnn")
+            t0 = time.time()
+            d0 = 0
+            odo0 = 0
+            td0 = 0
+            counter+=1
+            continue
 
-    #if counter > 500:
-        #print(f"speed ; {speed}  distance {distance} fl,fr {fl,fr}   rl,rr  {rl,rr}  ls {ls} prake_power {prake_power:.2f} gas_power {gas_power:.2f} sa,st = {sa,st}")
-    counter +=1
+        #print(dta.data)
+        if dta.arbitration_id == 0x56B:
+            a_classifier.speed = a_classifier.decode_speed(dta.data)
+            tn = time.time()
+            td = tn - t0
+            a_classifier.distance = a_classifier.calculate_trip_distance_from_speed(d0,a_classifier.speed,td)
+            d0 = a_classifier.distance
+            t0 = tn
+        if dta.arbitration_id == 0x5d0:
+            a_classifier.trip_distance = a_classifier.decode_trip_distance(dta.data,odo0)
+            td0 = a_classifier.trip_distance
+        if dta.arbitration_id == 0x541:
+            a_classifier.fl,a_classifier.fr = a_classifier.decode_front_doors_status(dta.data)
+        if dta.arbitration_id == 0x553:
+            a_classifier.rl,a_classifier.rr = a_classifier.decode_rear_doors_status(dta.data)
+        if dta.arbitration_id == 0x541:
+            a_classifier.ls = a_classifier.decode_light_status(dta.data)
+        if dta.arbitration_id == 0x331:
+            a_classifier.prake_power = a_classifier.decode_brake_power(dta.data)
+        if dta.arbitration_id == 0x230:
+            a_classifier.gas_power = a_classifier.decode_gas_power(dta.data)
+        if dta.arbitration_id == 0x2B0:    
+            a_classifier.sa,a_classifier.st= a_classifier.decode_ssteering_angle_torque(dta.data)
+
+        #if counter > 500:
+            #print(f"speed ; {speed}  distance {distance} fl,fr {fl,fr}   rl,rr  {rl,rr}  ls {ls} prake_power {prake_power:.2f} gas_power {gas_power:.2f} sa,st = {sa,st}")
+        counter +=1
+
+if __name__ == "__main__":
+    main()

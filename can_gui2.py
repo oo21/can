@@ -1,6 +1,8 @@
 import PySimpleGUI as sg
-import can_communication_copy as cc
+import classifier as c
 import serial
+
+a_classifier = c.a_classifier
 
 NAME_SIZE = 23
 
@@ -13,19 +15,18 @@ def name(name):
 layout = [[name('Port'),sg.OptionMenu(['ttyUSB0','ttyUSB1'],default_value='ttyUSB0',s=(15,2),k='ops')],
           [name('Configuration'), sg.Button('Configure_Can_Interface')],
           [sg.Text('',font='_ 14')],
-          [sg.Text('',font='_ 14', k='rpm')],
-          [sg.Text('',font='_ 14', k='speed')],
-          [sg.Text('',font='_ 14', k='ct')],
-          [sg.Text('',font='_ 14', k='iat')],
-          [sg.Text('',font='_ 14', k='iaf')],
-          [sg.Text('',font='_ 14', k='iap')],
-          [sg.Text('',font='_ 14', k='atp')],
-          [sg.Text('',font='_ 14', k='ita')],
-          [sg.Text('',font='_ 14', k='clv')],
-          [sg.Text('',font='_ 14', k='fl')],
-          [sg.Text('',font='_ 14', k='afe')],
-          [sg.Text('',font='_ 14', k='tb')],
-          [sg.Text('',font='_ 14', k='dtc')],
+          [sg.Text('',font='_ 14', k='speed')],                 
+          [sg.Text('',font='_ 14', k='trip_distance')],             
+          [sg.Text('',font='_ 14', k='fron left door')],            
+          [sg.Text('',font='_ 14', k='fron right door')],           
+          [sg.Text('',font='_ 14', k='rear left door')],            
+          [sg.Text('',font='_ 14', k='rear right door')],           
+          [sg.Text('',font='_ 14', k='light status')],          
+          [sg.Text('',font='_ 14', k='prake_power')],           
+          [sg.Text('',font='_ 14', k='gas_power')],         
+          [sg.Text('',font='_ 14', k='steering angle')],        
+          [sg.Text('',font='_ 14', k='steering torque')],       
+
 ]
 window = sg.Window(title=" obd data " ,layout=layout)
 counter = 0
@@ -48,8 +49,24 @@ while 1:
         cc.do_all_configuration(ser)
     else:
         try:
+
+            WINDOW['speed'].update(f'speed\t\t\t\t{a_classifier.speed}')
+            WINDOW['trip_distance'].update(f'trip distance\t\t\t\t{a_classifier.trip_distance}')
+            WINDOW['front left door'].update(f'front left door\t\t\t\t{a_classifier.fl}')
+            WINDOW['front right door'].update(f'front right door\t\t\t\t{a_classifier.fr}')
+            WINDOW['rear left door'].update(f'rear left door\t\t\t\t{a_classifier.rl}')
+            WINDOW['rear right door'].update(f'rear right door\t\t\t\t{a_classifier.rr}')
+            WINDOW['light status'].update(f'light status\t\t\t\t{a_classifier.ls}')
+            WINDOW['prake_power'].update(f'prake power\t\t\t\t{a_classifier.prake_power}')
+            WINDOW['gas_power'].update(f'gas power\t\t\t\t{a_classifier.gas_power}')
+            WINDOW['steering angle'].update(f'steering angle\t\t\t\t{a_classifier.sa}')
+            WINDOW['steering torque'].update(f'steering torque\t\t\t\t{a_classifier.st}')
+
+
+
+
+            window['speed'].update(f'speed\t\t\t\t{a_classifier.speed}')
             window['rpm'].update(f'rpm\t\t\t\t{int(cc.read_rpm(ser))}')               
-            window['speed'].update(f'speed\t\t\t\t{int(cc.read_speed(ser))}')
             window['ct'].update(f'engine coolant temp\t\t\t{int(cc.read_engine_coolant_temp(ser))}')
             window['iat'].update(f'intake air temp\t\t\t{int(cc.read_intake_air_temp(ser))}')
             window['iaf'].update(f'intake air flow\t\t\t{int(cc.read_intake_air_flow(ser))}')
